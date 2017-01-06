@@ -214,7 +214,7 @@ angular.module('starter.controllers', ['ngTable'])
                             for(var i in data){
                                 var item = data[i];
                                 var code = item.code.toLowerCase();
-                                $('#container').append('<div id="'+code+'"></div>');
+                                $('#chart').append('<div id="'+code+'"></div>');
                                 getCounter(code);
                                 $interval(function(){getCounter(code)}, 60000);
                             }
@@ -359,7 +359,7 @@ angular.module('starter.controllers', ['ngTable'])
                                     }];
 
                             //(line, spline, scatter, bubble, mappoint...)
-                            $('#container').highcharts('StockChart', {
+                            $('#popular').highcharts('StockChart', {
                                     rangeSelector : {
                                         selected : 1
                                     },
@@ -369,7 +369,7 @@ angular.module('starter.controllers', ['ngTable'])
                                     yAxis: yAxis,
                                     series : [{
                                         name : 'Column',
-                                        type : 'column',
+                                        type : 'area',
                                         yAxis: 0,
                                         data : data7.reverse()
                                     }, {
