@@ -1,0 +1,10 @@
+<ion-view view-title="Pref">
+  <ion-nav-buttons side="right">
+    <button class="button" ng-click="openModal('sz399001')">promise</button>
+  </ion-nav-buttons>
+  <ion-content>
+    <select ng-init="level = levels[0]" ng-model="level" ng-options="x as x for x in levels" ng-change="changeLevel(level)">
+	</select>
+    <div id="container"></div>
+  </ion-content>
+</ion-view>
