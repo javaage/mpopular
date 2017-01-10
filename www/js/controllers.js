@@ -119,7 +119,7 @@ angular.module('starter.controllers', ['ngTable'])
                         {
                             page: 1,            // show first page
                             count: 10,           // count per page
-                            sorting: { name: 'asc' }
+                            sorting: { rate: 'desc', a: 'desc' ,buy: 'desc'}
                         },
                         {
                             total: 0, // length of data
@@ -127,6 +127,8 @@ angular.module('starter.controllers', ['ngTable'])
                         });
                 });
         };
+
+        
     })
     .controller('CalCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
@@ -205,6 +207,13 @@ angular.module('starter.controllers', ['ngTable'])
         var url = "https://ichess.sinaapp.com/holder.php";
         $scope.getCounter(url,$scope);
         $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        $scope.addStock = function(code){
+            var urlAdd = "https://ichess.sinaapp.com/holder.php?a=a&c=" + code;
+            $http.get(urlAdd)
+                .success(function (data) {
+                    $scope.getCounter(url,$scope);
+                });
+        };
     }).controller('ChartCtrl', function ($rootScope,$scope) {
         console.log('chart');
     }).controller('WaveCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
@@ -295,7 +304,7 @@ angular.module('starter.controllers', ['ngTable'])
         oldData[100] = [];
 
         var n = 1;
-        var t = 0;
+        $scope.t = 0;
         var background = {
             type: 'linearGradient',
             x0: 0,
@@ -323,7 +332,7 @@ angular.module('starter.controllers', ['ngTable'])
             oldData[100] = [];
 
             var n = 1;
-            var t = 0;
+            $scope.t = 0;
 
             var isPlay = false;
             var sellNotification = false;
@@ -338,22 +347,26 @@ angular.module('starter.controllers', ['ngTable'])
             }
 
             $interval.cancel($rootScope.loop);
-            getCounter(1, t, r);
-            $rootScope.loop = $interval(function () { getCounter(1, t, r) }, 60000);
+            getCounter(1, r);
+            $rootScope.loop = $interval(function () { getCounter(1, r) }, 60000);
         };
 
-        function getCounter(n, t, r) {
+        function getCounter(n, r) {
             $.ajax({
                 url: "https://ichess.sinaapp.com/other/cy.php",
                 data: {
                     "n": n,
-                    "t": t,
+                    "t": $scope.t,
                     "r": r
                 },
                 context: document.body,
                 success: function (data) {
                     var maxColumn = 0;
+                    var minValue = 100000;
+                    var maxValue = 0;
                     data = eval('(' + data + ')');
+                    console.log(data);
+
                     data = data.concat(oldData[n]);
                     console.log(data);
                     oldData[n] = data;
@@ -371,6 +384,7 @@ angular.module('starter.controllers', ['ngTable'])
 
                     var delta = 0;
                     if (data.length > 0) {
+                        $scope.t = data[0].t;
                         var mid = Math.floor(data.length / 2);
                         delta = data[mid].dex - data[mid].strong;
                     }
@@ -379,16 +393,27 @@ angular.module('starter.controllers', ['ngTable'])
                     for (var i = 0; i < data.length; i++) {
                         data2.push([1000 * parseInt(data[i].t), parseFloat(data[i].strong) + delta]);
                         data1.push([1000 * parseInt(data[i].t), parseFloat(data[i].dex)]);
+
+                        if(parseFloat(data[i].dex) > maxValue){
+                            maxValue = parseFloat(data[i].dex);
+                        }
+                        if(parseFloat(data[i].strong) + delta > maxValue){
+                            maxValue = parseFloat(data[i].strong) + delta;
+                        }
+                        if(parseFloat(data[i].dex) < minValue){
+                            minValue = parseFloat(data[i].dex);
+                        }
+                        if(parseFloat(data[i].strong) + delta < minValue){
+                            minValue = parseFloat(data[i].strong) + delta;
+                        }
+
                         if (parseFloat(data[i].dex) < min)
                             min = parseFloat(data[i].dex);
                         if (parseFloat(data[i].clmn) > maxColumn)
                             maxColumn = parseFloat(data[i].clmn);
-                        if (data[i].t > t + (n - 1) * 60)
-                            t = data[i].t;
                     }
                     for (var i = 0; i < data.length; i++) {
                         var cl = parseFloat(data[i].clmn);
-
                         data7.push([1000 * parseInt(data[i].t), cl]);
                     }
 
@@ -456,6 +481,8 @@ angular.module('starter.controllers', ['ngTable'])
                         labels: {
                             format: '{value}'
                         },
+                        max: maxValue,
+                        min: minValue,
                         opposite: true
                     }];
 
@@ -499,12 +526,12 @@ angular.module('starter.controllers', ['ngTable'])
                 },
                 error: function (err) {
                     oldData[n] = [];
-                    t = 0;
+                    $scope.t = 0;
                     console.log(err);
                 }
             });
         }
 
-        getCounter(1, t, r);
-        $rootScope.loop = $interval(function () { getCounter(1, t, r) }, 60000);
+        getCounter(1, r);
+        $rootScope.loop = $interval(function () { getCounter(1, r) }, 60000);
     });
