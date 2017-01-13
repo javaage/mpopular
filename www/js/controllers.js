@@ -383,6 +383,9 @@ angular.module('starter.controllers', ['ngTable'])
                     var lt = [];
 
                     var delta = 0;
+
+                    var minP = 100000;
+                    var maxP = 0;
                     if (data.length > 0) {
                         $scope.t = data[0].t;
                         var mid = Math.floor(data.length / 2);
@@ -449,6 +452,12 @@ angular.module('starter.controllers', ['ngTable'])
                                 }
                             }
                         }
+                        if(data2[i][1] > maxP){
+                            maxP = data2[i][1];
+                        }
+                        if(data2[i][1] < minP){
+                            minP = data2[i][1];
+                        }
                     }
 
                     if (typeof (data3[data3.length - 1]) == "object" && data3[data3.length - 1][0] == data.length - 1 && !isPlay) { //buy
@@ -483,7 +492,24 @@ angular.module('starter.controllers', ['ngTable'])
                         },
                         max: maxValue,
                         min: minValue,
-                        opposite: true
+                        opposite: true,
+                        plotLines: [{
+                            value: minP,
+                            color: 'green',
+                            dashStyle: 'shortdash',
+                            width: 2,
+                            label: {
+                                text: 'min'
+                            }
+                        }, {
+                            value: maxP,
+                            color: 'red',
+                            dashStyle: 'shortdash',
+                            width: 2,
+                            label: {
+                                text: 'max'
+                            }
+                        }]
                     }];
 
                     //(line, spline, scatter, bubble, mappoint...)
