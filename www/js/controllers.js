@@ -144,7 +144,16 @@ angular.module('starter.controllers', ['ngTable'])
                     selected: 1
                 },
                 title: {
-                    text: 'cal'
+                    text: null
+                },
+                navigator: {
+                    enabled: false
+                },
+                credits: {
+                    enabled: false
+                },
+                scrollbar: {
+                    enabled: false
                 },
                 series: [{
                     name: 'real',
@@ -247,7 +256,16 @@ angular.module('starter.controllers', ['ngTable'])
                     selected: 1
                 },
                 title: {
-                    text: 'wave'
+                    text: null
+                },
+                navigator: {
+                    enabled: false
+                },
+                credits: {
+                    enabled: false
+                },
+                scrollbar: {
+                    enabled: false
                 },
                 yAxis: yAxis,
                 series: seriesOptions
@@ -323,9 +341,12 @@ angular.module('starter.controllers', ['ngTable'])
 
         var isPlay = false;
         var sellNotification = false;
-        var r = 1;
+        var r = 0;
+        var chart = null;
 
         $scope.changeAspect = function () {
+            chart = null;
+            
             oldData[1] = [];
             oldData[5] = [];
             oldData[20] = [];
@@ -336,13 +357,12 @@ angular.module('starter.controllers', ['ngTable'])
 
             var isPlay = false;
             var sellNotification = false;
-            var r = 0;
             var maxColumn = 0;
             if ($scope.aspect == "main") {
-                r = 0;
+                r = 1;
                 $scope.aspect = "little";
             } else {
-                r = 1;
+                r = 0;
                 $scope.aspect = "main";
             }
 
@@ -485,11 +505,14 @@ angular.module('starter.controllers', ['ngTable'])
                             format: '{value}'
                         },
                         max: 2 * maxColumn,
+                        tickInterval: 1000,
                         opposite: false
                     }, {
                         labels: {
                             format: '{value}'
                         },
+                        startOnTick: false,
+                        endOnTick: false,
                         max: maxValue,
                         min: minValue,
                         opposite: true,
@@ -512,42 +535,71 @@ angular.module('starter.controllers', ['ngTable'])
                         }]
                     }];
 
-                    //(line, spline, scatter, bubble, mappoint...)
-                    $('#popular').highcharts('StockChart', {
-                        rangeSelector: {
-                            selected: 1
-                        },
-                        title: {
-                            text: 'popular'
-                        },
-                        yAxis: yAxis,
-                        series: [{
-                            name: 'Column',
-                            type: 'area',
-                            yAxis: 0,
-                            data: data7.reverse()
-                        }, {
-                            name: 'Index',
-                            type: 'line',
-                            yAxis: 1,
-                            data: data1.reverse()
-                        }, {
-                            name: 'Popular',
-                            type: 'line',
-                            yAxis: 1,
-                            data: data2.reverse()
-                        }, {
-                            name: 'Buy point',
-                            type: 'scatter',
-                            yAxis: 1,
-                            data: data3.reverse()
-                        }, {
-                            name: 'Sell point',
-                            type: 'scatter',
-                            yAxis: 1,
-                            data: data4.reverse()
-                        }]
-                    });
+                    var series = [{
+                                name: 'Column',
+                                type: 'area',
+                                yAxis: 0,
+                                color: Highcharts.defaultOptions.colors[0],
+                                data: data7.reverse()
+                            }, {
+                                name: 'Index',
+                                type: 'line',
+                                yAxis: 1,
+                                color: Highcharts.defaultOptions.colors[1],
+                                data: data1.reverse()
+                            }, {
+                                name: 'Popular',
+                                type: 'line',
+                                yAxis: 1,
+                                color: Highcharts.defaultOptions.colors[2],
+                                data: data2.reverse()
+                            }, {
+                                name: 'Buy point',
+                                type: 'scatter',
+                                yAxis: 1,
+                                color: Highcharts.defaultOptions.colors[3],
+                                data: data3.reverse()
+                            }, {
+                                name: 'Sell point',
+                                type: 'scatter',
+                                yAxis: 1,
+                                color: Highcharts.defaultOptions.colors[4],
+                                data: data4.reverse()
+                            }];
+
+                    var options = {
+                            chart: {
+                                renderTo: 'popular'
+                            },
+                            rangeSelector: {
+                                selected: 1
+                            },
+                            title: {
+                                text: null
+                            },
+                            navigator: {
+                                enabled: false
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            scrollbar: {
+                                enabled: false
+                            },
+                            yAxis: yAxis,
+                            series: series
+                        };
+
+                    if(chart==null){
+                        chart = new Highcharts.stockChart(options);
+                    }else{
+                        chart.series = [];
+
+                        for(var i = 0; i < series.length; i++){
+                            chart.addSeries(series[i]);
+                        }
+                    }
+                    
 
                 },
                 error: function (err) {
@@ -559,5 +611,5 @@ angular.module('starter.controllers', ['ngTable'])
         }
 
         getCounter(1, r);
-        $rootScope.loop = $interval(function () { getCounter(1, r) }, 60000);
+        $rootScope.loop = $interval(function () { getCounter(1, r) }, 10000);
     });

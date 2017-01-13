@@ -24,6 +24,9 @@
         },
         "ionic-plugin-keyboard": {
             "PACKAGE_NAME": "com.ionicframework.mpopular177204"
+        },
+        "cordova-plugin-fullscreen": {
+            "PACKAGE_NAME": "com.ionicframework.mpopular177204"
         }
     },
     "dependent_plugins": {}
