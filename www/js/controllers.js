@@ -323,7 +323,7 @@ angular.module('starter.controllers', ['ngTable'])
 
         var isPlay = false;
         var sellNotification = false;
-        var r = 0;
+        var r = 1;
 
         $scope.changeAspect = function () {
             oldData[1] = [];
@@ -339,10 +339,10 @@ angular.module('starter.controllers', ['ngTable'])
             var r = 0;
             var maxColumn = 0;
             if ($scope.aspect == "main") {
-                r = 1;
+                r = 0;
                 $scope.aspect = "little";
             } else {
-                r = 0;
+                r = 1;
                 $scope.aspect = "main";
             }
 
