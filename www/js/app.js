@@ -31,7 +31,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         templateUrl: 'templates/menu.html',
         controller: 'AppCtrl'
       })
-
+      .state('app.daily', {
+        url: '/daily',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/daily.html',
+            controller: 'DailyCtrl'
+          }
+        }
+      })
       .state('app.short', {
         url: '/short',
         views: {

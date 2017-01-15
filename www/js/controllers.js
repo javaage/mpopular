@@ -196,6 +196,12 @@ angular.module('starter.controllers', ['ngTable'])
         $scope.getCounter(url,$scope);
         $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     })
+    .controller('DailyCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
+        $interval.cancel($rootScope.loop);
+        var url = "https://ichess.sinaapp.com/daily/analysis.php";
+        $scope.getCounter(url,$scope);
+        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+    })
     .controller('ShortCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/short.php";
@@ -344,7 +350,22 @@ angular.module('starter.controllers', ['ngTable'])
         var r = 0;
         var chart = null;
 
-        $scope.changeAspect = function () {
+        $scope.changeLevel = function(level){
+            chart = null;
+            n = parseInt(level);
+            oldData[1] = [];
+            oldData[5] = [];
+            oldData[20] = [];
+            oldData[100] = [];
+
+            $scope.t = 0;
+            var maxColumn = 0;
+            $interval.cancel($rootScope.loop);
+            getCounter(n, r);
+            $rootScope.loop = $interval(function () { getCounter(n, r) }, 60000);
+        }
+
+        $scope.changeAspect = function (n) {
             chart = null;
             
             oldData[1] = [];
@@ -352,7 +373,7 @@ angular.module('starter.controllers', ['ngTable'])
             oldData[20] = [];
             oldData[100] = [];
 
-            var n = 1;
+
             $scope.t = 0;
 
             var isPlay = false;
@@ -367,8 +388,8 @@ angular.module('starter.controllers', ['ngTable'])
             }
 
             $interval.cancel($rootScope.loop);
-            getCounter(1, r);
-            $rootScope.loop = $interval(function () { getCounter(1, r) }, 60000);
+            getCounter(n, r);
+            $rootScope.loop = $interval(function () { getCounter(n, r) }, 60000);
         };
 
         function getCounter(n, r) {
@@ -432,12 +453,13 @@ angular.module('starter.controllers', ['ngTable'])
 
                         if (parseFloat(data[i].dex) < min)
                             min = parseFloat(data[i].dex);
-                        if (parseFloat(data[i].clmn) > maxColumn)
-                            maxColumn = parseFloat(data[i].clmn);
                     }
                     for (var i = 0; i < data.length; i++) {
-                        var cl = parseFloat(data[i].clmn);
+                        var cl = Math.round(parseFloat(data[i].clmn)/1000);
                         data7.push([1000 * parseInt(data[i].t), cl]);
+
+                        if (cl > maxColumn)
+                            maxColumn = cl;
                     }
 
                     for (var i = 1; i < data.length; i++) {
