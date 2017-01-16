@@ -1,7 +1,6 @@
 angular.module('starter.controllers', ['ngTable'])
 
-    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $http, NgTableParams) {
-        $rootScope.loop = 0;
+    .controller('AppCtrl', function ($rootScope,$scope, $ionicModal, $timeout, $http, $interval, NgTableParams) {
         Highcharts.setOptions({ global: { useUTC: false } });
         var dailyUrlTmp = "https://image.sinajs.cn/newchart/daily/n/sh600000.gif";
         var miniteUrlTmp = "https://image.sinajs.cn/newchart/min/n/sh600000.gif";
@@ -70,12 +69,10 @@ angular.module('starter.controllers', ['ngTable'])
             var post = {
                 "code": code
             };
-            $.ajax({
-                type: "POST",
-                url: "https://ichess.sinaapp.com/prefprice.php",
-                data: post,
-                success: function (data) {
-                    data = eval('(' + data + ')');
+
+            $http.post('https://ichess.sinaapp.com/prefprice.php',post)
+                .success(function (data) {
+                    console.log(data);
                     $("#prefBuy").text(data.prefBuy);
                     $("#prefSell").text(data.prefSell);
                     $("#current").text(data.current);
@@ -103,14 +100,13 @@ angular.module('starter.controllers', ['ngTable'])
                         $("#divDaily").append(imgDaily);
                     };
                     imgDaily.src = dailyUrl;
-                }
-            });
+                });
         };
         $scope.closeModal = function () {
             $scope.modal.hide();
         };
 
-        $scope.getCounter = function (url,$scope) {
+        $scope.getCounter = function (url) {
 
             $http.get(url)
                 .success(function (data) {
@@ -125,19 +121,28 @@ angular.module('starter.controllers', ['ngTable'])
                             total: 0, // length of data
                             dataset: data
                         });
+                })
+                .finally(function() {
+                    $scope.$broadcast('scroll.refreshComplete');
                 });
         };
 
-        
-    })
-    .controller('CalCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
+        var locationChangeStart = function(){
+            if($rootScope.loop){
+                $interval.cancel($rootScope.loop);
+                $rootScope.loop = null;
+            }
+        };
 
+        $rootScope.$on('$locationChangeStart', locationChangeStart);        
+    })
+    .controller('CalCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
         $scope.levels = [5, 6, 7, 8, 9, 10, 11];
 
         $scope.changeLevel = function (level) {
-            getCounter(level,$scope);
+            calindex(level);
         };
+
         function createChart(data) {
             $('#container').highcharts('StockChart', {
                 rangeSelector: {
@@ -171,68 +176,47 @@ angular.module('starter.controllers', ['ngTable'])
             });
         }
 
-        function getCounter(n) {
-            $.ajax({
-                url: 'https://ichess.sinaapp.com/calindex.php',
-                context: document.body,
-                data: {
-                    n: n
-                },
-                success: function (data) {
-                    data = eval('(' + data + ')');
+        function calindex(n) {
+            $http.get('https://ichess.sinaapp.com/calindex.php?n=' + n)
+                .success(function (data) {
+                    console.log(data);
                     createChart(data);
-                }
-            });
+                });
         }
 
-        $(document).ready(function () {
-            getCounter(5);
-        });
+       calindex(5);
 
     })
-    .controller('ActionCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/actionList.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+    .controller('ActionCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/actionList.php";
+        $scope.getCounter($scope.url,$scope);
     })
-    .controller('DailyCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/daily/analysis.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+    .controller('DailyCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/daily/analysis.php";
+        $scope.getCounter($scope.url,$scope);
     })
-    .controller('ShortCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/short.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
-    }).controller('TrendCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/rate.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
-    }).controller('PrefCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/pref.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
-    }).controller('HolderCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
-        var url = "https://ichess.sinaapp.com/holder.php";
-        $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+    .controller('ShortCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/short.php";
+        $scope.getCounter($scope.url,$scope);
+    }).controller('TrendCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/rate.php";
+        $scope.getCounter($scope.url,$scope);
+    }).controller('PrefCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/pref.php";
+        $scope.getCounter($scope.url,$scope);
+    }).controller('HolderCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+        $scope.url = "https://ichess.sinaapp.com/holder.php";
+        $scope.getCounter($scope.url,$scope);
         $scope.addStock = function(code){
             var urlAdd = "https://ichess.sinaapp.com/holder.php?a=a&c=" + code;
             $http.get(urlAdd)
                 .success(function (data) {
-                    $scope.getCounter(url,$scope);
+                    $scope.getCounter($scope.url);
                 });
         };
     }).controller('ChartCtrl', function ($rootScope,$scope) {
         console.log('chart');
-    }).controller('WaveCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
+    }).controller('WaveCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
         var codes = 'sz002594,sh601390';
         var lt = (new Date()).getTime() - 24 * 60 * 60 * 1000;
         var seriesOptions = [];
@@ -278,16 +262,10 @@ angular.module('starter.controllers', ['ngTable'])
             });
         };
 
-        var getCounter = function (code) {
-            $.ajax({
-                url: 'https://ichess.sinaapp.com/getindex.php',
-                context: document.body,
-                data: {
-                    codes: code,
-                    //lt:lt
-                },
-                success: function (data) {
-                    data = eval('(' + data + ')');
+        var getindex = function (code) {
+            $http.get('https://ichess.sinaapp.com/getindex.php?codes=' + code )
+                .success(function (data) {
+                    console.log(data);
                     seriesOptions = $.extend(true, {}, seriesOptions, data);
                     console.log(data);
 
@@ -296,30 +274,33 @@ angular.module('starter.controllers', ['ngTable'])
                         lt = lst[lst.length - 1][0];
                     }
                     createChart(code, data);
-                }
-            });
+                });
         };
 
         var getHolder = function () {
-            $.ajax({
-                url: 'https://ichess.sinaapp.com/holder.php',
-                context: document.body,
-                success: function (data) {
-                    data = eval('(' + data + ')');
+            var url = 'https://ichess.sinaapp.com/holder.php';
+            $http.get(url)
+                .success(function (data) {
                     for (var i in data) {
                         var item = data[i];
                         var code = item.code.toLowerCase();
                         $('#chart').append('<div id="' + code + '"></div>');
-                        getCounter(code);
-                        $rootScope.loop = $interval(function () { getCounter(code) }, 60000);
+                        getindex(code);
                     }
-                }
-            });
+                })
+                .finally(function() {
+                    $scope.$broadcast('scroll.refreshComplete');
+                });
         };
 
         getHolder();
+
+        $scope.refreshChart = function(){
+            getHolder();
+        };
     }).controller('PopularCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
-        $interval.cancel($rootScope.loop);
+
+        $scope.days = [1,5,20,100];
         $scope.aspect = "main";
         var oldData = [];
         oldData[1] = [];
@@ -328,7 +309,8 @@ angular.module('starter.controllers', ['ngTable'])
         oldData[100] = [];
 
         var n = 1;
-        $scope.t = 0;
+        var t = 0;
+
         var background = {
             type: 'linearGradient',
             x0: 0,
@@ -350,22 +332,22 @@ angular.module('starter.controllers', ['ngTable'])
         var r = 0;
         var chart = null;
 
-        $scope.changeLevel = function(level){
+        $scope.changeLevel = function(day){
+            chart.destroy();
             chart = null;
-            n = parseInt(level);
+            n = parseInt(day);
             oldData[1] = [];
             oldData[5] = [];
             oldData[20] = [];
             oldData[100] = [];
 
-            $scope.t = 0;
+            t = 0;
             var maxColumn = 0;
-            $interval.cancel($rootScope.loop);
-            getCounter(n, r);
-            $rootScope.loop = $interval(function () { getCounter(n, r) }, 60000);
+            calPopular(n, r);
         }
 
         $scope.changeAspect = function (n) {
+            chart.destroy();
             chart = null;
             
             oldData[1] = [];
@@ -373,8 +355,7 @@ angular.module('starter.controllers', ['ngTable'])
             oldData[20] = [];
             oldData[100] = [];
 
-
-            $scope.t = 0;
+            t = 0;
 
             var isPlay = false;
             var sellNotification = false;
@@ -387,38 +368,39 @@ angular.module('starter.controllers', ['ngTable'])
                 $scope.aspect = "main";
             }
 
-            $interval.cancel($rootScope.loop);
-            getCounter(n, r);
-            $rootScope.loop = $interval(function () { getCounter(n, r) }, 60000);
+            calPopular(n, r);
         };
 
-        function getCounter(n, r) {
-            $.ajax({
-                url: "https://ichess.sinaapp.com/other/cy.php",
-                data: {
-                    "n": n,
-                    "t": $scope.t,
-                    "r": r
-                },
-                context: document.body,
-                success: function (data) {
+        function calPopular(n, r) {
+            var p = {
+                    n: n,
+                    t: t,
+                    r: r
+                };
+
+            $http.get('https://ichess.sinaapp.com/other/cy.php?' + $.param(p))
+                .success(function (data) {
+                    console.log(data);
+                    
+                    if(data.length == 0)
+                        return;
+
                     var maxColumn = 0;
                     var minValue = 100000;
                     var maxValue = 0;
-                    data = eval('(' + data + ')');
-                    console.log(data);
+                    data = oldData[n].concat(data);
+                    
+                    oldData[n] = data.slice();
 
-                    data = data.concat(oldData[n]);
-                    console.log(data);
-                    oldData[n] = data;
-
-                    var data1 = [];
-                    var data2 = [];
-                    var data3 = [];
-                    var data4 = [];
-                    var data5 = [];
-                    var data6 = [];
-                    var data7 = [];
+                    var arr = [];
+                     arr[0] = [];
+                     arr[1] = [];
+                     arr[2] = [];
+                     arr[3] = [];
+                     arr[4] = [];
+                     arr[5] = [];
+                     arr[6] = [];
+                    
 
                     var gt = [];
                     var lt = [];
@@ -427,16 +409,16 @@ angular.module('starter.controllers', ['ngTable'])
 
                     var minP = 100000;
                     var maxP = 0;
-                    if (data.length > 0) {
-                        $scope.t = data[0].t;
-                        var mid = Math.floor(data.length / 2);
-                        delta = data[mid].dex - data[mid].strong;
-                    }
+                    
+                    t = data[data.length-1].t;
+                    var mid = Math.floor(data.length / 2);
+                    delta = data[mid].dex - data[mid].strong;
 
                     var min = 100000;
+
                     for (var i = 0; i < data.length; i++) {
-                        data2.push([1000 * parseInt(data[i].t), parseFloat(data[i].strong) + delta]);
-                        data1.push([1000 * parseInt(data[i].t), parseFloat(data[i].dex)]);
+                        arr[2].push([1000 * parseInt(data[i].t), parseFloat(data[i].strong) + delta]);
+                        arr[1].push([1000 * parseInt(data[i].t), parseFloat(data[i].dex)]);
 
                         if(parseFloat(data[i].dex) > maxValue){
                             maxValue = parseFloat(data[i].dex);
@@ -456,65 +438,69 @@ angular.module('starter.controllers', ['ngTable'])
                     }
                     for (var i = 0; i < data.length; i++) {
                         var cl = Math.round(parseFloat(data[i].clmn)/1000);
-                        data7.push([1000 * parseInt(data[i].t), cl]);
+
+                        if(cl > 4000){
+                            cl = 4000;
+                        }
+                        arr[0].push([1000 * parseInt(data[i].t), cl]);
 
                         if (cl > maxColumn)
                             maxColumn = cl;
                     }
 
                     for (var i = 1; i < data.length; i++) {
-                        if (i > 1 && data1[i][1] < data1[i - 1][1]) {
-                            if (data2[i][1] > data2[i - 1][1]) {
+                        if (i > 1 && arr[1][i][1] < arr[1][i - 1][1]) {
+                            if (arr[2][i][1] > arr[2][i - 1][1]) {
                                 var last = gt[gt.length - 1];
                                 var append = 0;
                                 if (typeof (last) == "object" && last[0] == i - 1) {
                                     append = last[1];
                                 }
-                                gt.push([i, data2[i][1] - data2[i - 1][1] + append]);
+                                gt.push([i, arr[2][i][1] - arr[2][i - 1][1] + append]);
                                 if (gt[gt.length - 1][1] > 3) {
-                                    data3.push([1000 * parseInt(data[i].t), data1[i][1]]);
+                                    arr[3].push([1000 * parseInt(data[i].t), arr[1][i][1]]);
                                 } else if (gt[gt.length - 1][1] > 2) {
-                                    data5.push([1000 * parseInt(data[i].t), data1[i][1]]);
+                                    arr[5].push([1000 * parseInt(data[i].t), arr[1][i][1]]);
                                 }
                             }
                         }
 
-                        if (i > 1 && data1[i][1] > data1[i - 1][1]) {
-                            if (data2[i][1] < data2[i - 1][1]) {
+                        if (i > 1 && arr[1][i][1] > arr[1][i - 1][1]) {
+                            if (arr[2][i][1] < arr[2][i - 1][1]) {
                                 var last = lt[lt.length - 1];
                                 var append = 0;
                                 if (typeof (last) == "object" && last[0] == i - 1) {
                                     append = last[1];
                                 }
-                                lt.push([i, data2[i][1] - data2[i - 1][1] + append]);
+                                lt.push([i, arr[2][i][1] - arr[2][i - 1][1] + append]);
                                 if (lt[lt.length - 1][1] < -3) {
-                                    data4.push([1000 * parseInt(data[i].t), data1[i][1]]);
+                                    arr[4].push([1000 * parseInt(data[i].t), arr[1][i][1]]);
                                 } else if (lt[lt.length - 1][1] < -2) {
-                                    data6.push([1000 * parseInt(data[i].t), data1[i][1]]);
+                                    arr[6].push([1000 * parseInt(data[i].t), arr[1][i][1]]);
                                 }
                             }
                         }
-                        if(data2[i][1] > maxP){
-                            maxP = data2[i][1];
+                        if(arr[2][i][1] > maxP){
+                            maxP = arr[2][i][1];
                         }
-                        if(data2[i][1] < minP){
-                            minP = data2[i][1];
+                        if(arr[2][i][1] < minP){
+                            minP = arr[2][i][1];
                         }
                     }
 
-                    if (typeof (data3[data3.length - 1]) == "object" && data3[data3.length - 1][0] == data.length - 1 && !isPlay) { //buy
+                    if (typeof (arr[3][arr[3].length - 1]) == "object" && arr[3][arr[3].length - 1][0] == data.length - 1 && !isPlay) { //buy
                         isPlay = true;
                         player = document.getElementById('buymp3');
                         player.play();
-                    } else if (typeof (data4[data4.length - 1]) == "object" && data4[data4.length - 1][0] == data.length - 1 && !isPlay) { //sell
+                    } else if (typeof (arr[4][arr[4].length - 1]) == "object" && arr[4][arr[4].length - 1][0] == data.length - 1 && !isPlay) { //sell
                         isPlay = true;
                         player = document.getElementById('sellmp3');
                         player.play();
-                    } else if (typeof (data5[data5.length - 1]) == "object" && data5[data5.length - 1][0] == data.length - 1 && !isPlay) { //pre buy
+                    } else if (typeof (arr[5][arr[5].length - 1]) == "object" && arr[5][arr[5].length - 1][0] == data.length - 1 && !isPlay) { //pre buy
                         isPlay = true;
                         player = document.getElementById('pbuymp3');
                         player.play();
-                    } else if (typeof (data6[data6.length - 1]) == "object" && data6[data6.length - 1][0] == data.length - 1 && !isPlay) { //pre sell
+                    } else if (typeof (arr[6][arr[6].length - 1]) == "object" && arr[6][arr[6].length - 1][0] == data.length - 1 && !isPlay) { //pre sell
                         isPlay = true;
                         player = document.getElementById('psellmp3');
                         player.play();
@@ -562,31 +548,31 @@ angular.module('starter.controllers', ['ngTable'])
                                 type: 'area',
                                 yAxis: 0,
                                 color: Highcharts.defaultOptions.colors[0],
-                                data: data7.reverse()
+                                data: arr[0]
                             }, {
                                 name: 'Index',
                                 type: 'line',
                                 yAxis: 1,
                                 color: Highcharts.defaultOptions.colors[1],
-                                data: data1.reverse()
+                                data: arr[1]
                             }, {
                                 name: 'Popular',
                                 type: 'line',
                                 yAxis: 1,
                                 color: Highcharts.defaultOptions.colors[2],
-                                data: data2.reverse()
+                                data: arr[2]
                             }, {
                                 name: 'Buy point',
                                 type: 'scatter',
                                 yAxis: 1,
                                 color: Highcharts.defaultOptions.colors[3],
-                                data: data3.reverse()
+                                data: arr[3]
                             }, {
                                 name: 'Sell point',
                                 type: 'scatter',
                                 yAxis: 1,
                                 color: Highcharts.defaultOptions.colors[4],
-                                data: data4.reverse()
+                                data: arr[4]
                             }];
 
                     var options = {
@@ -615,23 +601,21 @@ angular.module('starter.controllers', ['ngTable'])
                     if(chart==null){
                         chart = new Highcharts.stockChart(options);
                     }else{
-                        chart.series = [];
-
-                        for(var i = 0; i < series.length; i++){
-                            chart.addSeries(series[i]);
+                        for(var i = 0; i < chart.series.length; i++){
+                            for(var j = chart.series[i].data.length; j < arr[i].length; j++){
+                                chart.series[i].addPoint(arr[i][j],false);
+                            }
                         }
+                        chart.redraw();
                     }
-                    
-
-                },
-                error: function (err) {
+                })
+                .error(function(error){
+                    console.log(error);
                     oldData[n] = [];
-                    $scope.t = 0;
-                    console.log(err);
-                }
-            });
-        }
+                    t = 0;
+                });
+        };
 
-        getCounter(1, r);
-        $rootScope.loop = $interval(function () { getCounter(1, r) }, 10000);
+        calPopular(n, r);
+        $rootScope.loop = $interval(function (){ calPopular(n, r) }, 10000);
     });

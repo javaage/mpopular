@@ -1,7 +1,7 @@
 <ion-view view-title="Holder">
     <ion-content>
+        <ion-refresher pulling-text="refresh" on-refresh="getCounter(url)"></ion-refresher>
         <div>
-        
         <input type="text" name="code" ng-model="code" placeholder="code" style="width:200px;border: 1px;">
         <button ng-click="addStock(code)">add code</button>
         </div>

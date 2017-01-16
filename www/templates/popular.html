@@ -1,11 +1,7 @@
 <ion-view view-title="Popular">
   <ion-nav-buttons side="right">
-  	<select style="width: 100px;margin-right: 100px;" ng-model="level" ng-init="level=1" ng-change="changeLevel(level)">
-  		<option value="1" selected = "selected">1</option>
-  		<option value="5" >5</option>
-  		<option value="20" >20</option>
-  		<option value="100" >100</option>
-  	</select>
+    <select ng-init="day = days[0]" ng-model="day" ng-options="x for x in days" ng-change="changeLevel(day)" style="width: 100px;margin-right: 100px;">
+    </select>
     <button class="button" ng-click="changeAspect()">{{aspect}}</button>
   </ion-nav-buttons>
   <ion-content>
