@@ -1,7 +1,4 @@
 <ion-modal-view>
-    <ion-header-bar>
-        <h1 class="title">Detail</h1>
-    </ion-header-bar>
     <ion-content>
 
         <div>
@@ -9,20 +6,14 @@
                 <tr>
                     <td>推荐买入价格</td>
                     <td id="prefBuy"></td>
-                </tr>
-                <tr>
                     <td>推荐卖出价格</td>
                     <td id="prefSell"></td>
-                </tr>
-                <tr>
                     <td>当前价格</td>
                     <td id="current"></td>
                 </tr>
                 <tr>
                     <td>当日最高价格</td>
                     <td id="high"></td>
-                </tr>
-                <tr>
                     <td>当日最低价格</td>
                     <td id="low"></td>
                 </tr>
@@ -30,22 +21,22 @@
             <div>
                 <!-- Nav tabs -->
                 <ul id="myTabs" class="nav nav-tabs" role="tablist">
-                    <li role="presentation" class="active">
+                    <li role="presentation" >
                         <a href="#minite" aria-controls="home" role="tab" data-toggle="tab">分时图</a>
                     </li>
-                    <li role="presentation">
+                    <li role="presentation" class="active">
                         <a href="#daily" aria-controls="profile" role="tab" data-toggle="tab">日线图</a>
                     </li>
                 </ul>
 
                 <!-- Tab panes -->
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="minite">
+                    <div role="tabpanel" class="tab-pane" id="minite">
                         <div id="divMinite" class="item active">
                             <img id="imgMinite">
                         </div>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="daily">
+                    <div role="tabpanel" class="tab-pane active" id="daily">
                         <div id="divDaily" class="item">
                             <img id="imgDaily">
                         </div>

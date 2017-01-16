@@ -119,7 +119,7 @@ angular.module('starter.controllers', ['ngTable'])
                         {
                             page: 1,            // show first page
                             count: 10,           // count per page
-                            sorting: { rate: 'desc', a: 'desc' ,buy: 'desc'}
+                            sorting: { r:'desc', rate: 'desc', a: 'desc' ,buy: 'desc'}
                         },
                         {
                             total: 0, // length of data
@@ -194,34 +194,34 @@ angular.module('starter.controllers', ['ngTable'])
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/actionList.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     })
     .controller('DailyCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/daily/analysis.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     })
     .controller('ShortCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/short.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     }).controller('TrendCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/rate.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     }).controller('PrefCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/pref.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
     }).controller('HolderCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
         $interval.cancel($rootScope.loop);
         var url = "https://ichess.sinaapp.com/holder.php";
         $scope.getCounter(url,$scope);
-        $rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
+        //$rootScope.loop = $interval(function () { $scope.getCounter(url,$scope) }, 60000);
         $scope.addStock = function(code){
             var urlAdd = "https://ichess.sinaapp.com/holder.php?a=a&c=" + code;
             $http.get(urlAdd)
@@ -456,6 +456,8 @@ angular.module('starter.controllers', ['ngTable'])
                     }
                     for (var i = 0; i < data.length; i++) {
                         var cl = Math.round(parseFloat(data[i].clmn)/1000);
+                        if(cl > 4000)
+                            cl = 4000;
                         data7.push([1000 * parseInt(data[i].t), cl]);
 
                         if (cl > maxColumn)
