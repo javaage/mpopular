@@ -5,7 +5,7 @@
     <button class="button" ng-click="changeAspect()">{{aspect}}</button>
   </ion-nav-buttons>
   <ion-content>
-  
-    <div id="popular"></div>
+    <ion-refresher pulling-text="refresh" on-refresh="stopSound()"></ion-refresher>
+    <div id="popular" style="width: 600px;height:400px;"></div>
   </ion-content>
 </ion-view>

@@ -381,6 +381,12 @@ angular.module('starter.controllers', ['ngTable'])
             calPopular(n, r);
         };
 
+        $scope.stopSound = function(){
+            if($scope.player)
+                $scope.player.pause();
+            $scope.$broadcast('scroll.refreshComplete');
+        };
+
         function calPopular(n, r) {
             var p = {
                     n: n,
@@ -499,18 +505,26 @@ angular.module('starter.controllers', ['ngTable'])
                     }
 
                     if (typeof (arr[3][arr[3].length - 1]) == "object" && arr[3][arr[3].length - 1][0] == data.length - 1 && !isPlay) { //buy
+                        if($scope.player)
+                            $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('buymp3');
                         $scope.player.play();
                     } else if (typeof (arr[4][arr[4].length - 1]) == "object" && arr[4][arr[4].length - 1][0] == data.length - 1 && !isPlay) { //sell
+                        if($scope.player)
+                            $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('sellmp3');
                         $scope.player.play();
                     } else if (typeof (arr[5][arr[5].length - 1]) == "object" && arr[5][arr[5].length - 1][0] == data.length - 1 && !isPlay) { //pre buy
+                        if($scope.player)
+                            $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('pbuymp3');
                         $scope.player.play();
                     } else if (typeof (arr[6][arr[6].length - 1]) == "object" && arr[6][arr[6].length - 1][0] == data.length - 1 && !isPlay) { //pre sell
+                        if($scope.player)
+                            $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('psellmp3');
                         $scope.player.play();
@@ -585,6 +599,7 @@ angular.module('starter.controllers', ['ngTable'])
                                 data: arr[4]
                             }];
 
+
                     var options = {
                             chart: {
                                 renderTo: 'popular'
@@ -608,16 +623,44 @@ angular.module('starter.controllers', ['ngTable'])
                             series: series
                         };
 
-                    if(chart==null){
-                        chart = new Highcharts.stockChart(options);
-                    }else{
-                        for(var i = 0; i < chart.series.length; i++){
-                            for(var j = chart.series[i].data.length; j < arr[i].length; j++){
-                                chart.series[i].addPoint(arr[i][j],false);
-                            }
-                        }
-                        chart.redraw();
-                    }
+
+                        var myChart = echarts.init(document.getElementById('popular'));
+
+                        // 指定图表的配置项和数据
+                        var option = {
+                            title: {
+                                text: 'ECharts 入门示例'
+                            },
+                            tooltip: {},
+                            legend: {
+                                data:['销量']
+                            },
+                            xAxis: {
+                                data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+                            },
+                            yAxis: {},
+                            series: [{
+                                name: '销量',
+                                type: 'bar',
+                                data: [5, 20, 36, 10, 10, 20]
+                            }]
+                        };
+
+                        // 使用刚指定的配置项和数据显示图表。
+                        myChart.setOption(option);
+
+                    // if(chart)
+                    //     chart.destroy();
+                    // chart = new Highcharts.stockChart(options);
+
+                    // if(chart==null){
+                    //     chart = new Highcharts.stockChart(options);
+                    // }else{
+                    //     for(var i = 0; i < chart.series.length; i++){
+                    //         chart.series[i].setData(arr[i],true);
+                    //     }
+                    //     chart.redraw();
+                    // }
                 })
                 .error(function(error){
                     console.log(error);
