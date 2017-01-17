@@ -2,7 +2,7 @@
     <ion-content>
         <ion-refresher pulling-text="refresh" on-refresh="getCounter(url)"></ion-refresher>
         <div>
-        <input type="text" name="code" ng-model="code" placeholder="code" style="width:200px;border: 1px;">
+        <input type="text" name="code" ng-model="code" placeholder="please input your code here" style="width:200px;border: 1px;">
         <button ng-click="addStock(code)">add code</button>
         </div>
         <table ng-table="tableParams" class="table table-condensed table-bordered table-striped" show-filter="false">
@@ -19,8 +19,11 @@
                     {{stock.rate | number:3}}</td>
                 <td title="'gate'" sortable="'gate'">
                     {{stock.gate | number:3}}</td>
-                <td title="'操作'">
+                <td title="'查看'">
                     <button type="button" class="btn btn-primary" ng-click="openModal('{{stock.code}}')">Detail</button>
+                </td>
+                <td title="'操作'">
+                    <button type="button" class="btn btn-primary" ng-click="deleteStock('{{stock.code}}')">Delete</button>
                 </td>
             </tr>
         </table>
