@@ -271,10 +271,10 @@ angular.module('starter.controllers', ['ngTable'])
 
         
 
-    }).controller('WaveCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
+    }).controller('WaveCtrl', function ($rootScope,$scope, $http, $ionicModal,$interval, NgTableParams) {
         var codes = 'sz002594,sh601390';
         var lt = (new Date()).getTime() - 24 * 60 * 60 * 1000;
-        var seriesOptions = [];
+        
         var yAxis = [{
             labels: {
                 format: '{value}'
@@ -287,6 +287,8 @@ angular.module('starter.controllers', ['ngTable'])
             opposite: true
         }];
 
+        var charts = [];
+
         var createChart = function (container, seriesOptions) {
             for (var v in seriesOptions) {
                 if (seriesOptions[v].name == 'sh000001') {
@@ -296,32 +298,40 @@ angular.module('starter.controllers', ['ngTable'])
                 }
             }
 
-            $('#' + container).highcharts('StockChart', {
-                rangeSelector: {
-                    selected: 1
-                },
-                title: {
-                    text: null
-                },
-                navigator: {
-                    enabled: false
-                },
-                credits: {
-                    enabled: false
-                },
-                scrollbar: {
-                    enabled: false
-                },
-                yAxis: yAxis,
-                series: seriesOptions
-            });
+            if(charts[container]){
+                for(var i = 0; i < charts[container].series.length; i++){
+                    charts[container].series[i].setData(seriesOptions[i].data);
+                }
+            }else{
+                charts[container] = new Highcharts.stockChart({
+                    chart: {
+                        renderTo: container
+                    },
+                    rangeSelector: {
+                        selected: 1
+                    },
+                    title: {
+                        text: null
+                    },
+                    navigator: {
+                        enabled: false
+                    },
+                    credits: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: true
+                    },
+                    yAxis: yAxis,
+                    series: seriesOptions
+                });
+            }
+            
         };
 
         var getindex = function (code) {
             $http.get('https://ichess.sinaapp.com/getindex.php?codes=' + code )
                 .success(function (data) {
-                    console.log(data);
-                    seriesOptions = $.extend(true, {}, seriesOptions, data);
                     console.log(data);
 
                     var lst = data[0]['data'];
@@ -329,7 +339,7 @@ angular.module('starter.controllers', ['ngTable'])
                         lt = lst[lst.length - 1][0];
                     }
                     createChart(code, data);
-                });
+            });
         };
 
         var getHolder = function () {
@@ -339,7 +349,7 @@ angular.module('starter.controllers', ['ngTable'])
                     for (var i in data) {
                         var item = data[i];
                         var code = item.code.toLowerCase();
-                        $('#chart').append('<div id="' + code + '"></div>');
+                        $('#popular').append('<div id="' + code + '"></div>');
                         getindex(code);
                     }
                 })
@@ -350,9 +360,8 @@ angular.module('starter.controllers', ['ngTable'])
 
         getHolder();
 
-        $scope.refreshChart = function(){
-            getHolder();
-        };
+        $rootScope.loop = $interval(function (){ getHolder() }, 10000);
+        
     }).controller('PopularCtrl', function ($rootScope,$scope, $interval, $http, $ionicModal, NgTableParams) {
 
         $scope.days = [1,5,20,100];
