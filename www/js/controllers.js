@@ -224,8 +224,53 @@ angular.module('starter.controllers', ['ngTable'])
                     alert('delete successfully.');
                 });
         };
-    }).controller('ChartCtrl', function ($rootScope,$scope) {
-        console.log('chart');
+    }).controller('chartCtrl', function ($rootScope,$scope,$interval) {
+        
+        var chart = new Highcharts.stockChart({
+            chart: {
+                renderTo: 'popular',
+                type: 'area'
+            },
+            title: {
+                text: 'Monthly Average Temperature'
+            },
+            subtitle: {
+                text: 'Source: WorldClimate.com'
+            },
+
+            yAxis: {
+                title: {
+                    text: 'Temperature (°C)'
+                }
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    enableMouseTracking: false
+                }
+            },
+            series: [{
+                name: 'Tokyo',
+                data: [[100,7.0], [120,6.9]]
+            }, {
+                name: 'London',
+                data: [[100,5.0], [120,16.9]]
+            }]
+        });
+
+        function addPoint(){
+             chart.series[0].addPoint([150,10],false);
+             chart.series[1].addPoint([150,20],false);
+            //chart.series[0].setData([[100,7.0], [120,6.9],[150,10]],false);
+            chart.redraw();
+        }
+        
+        $interval(addPoint,10000);
+
+        
+
     }).controller('WaveCtrl', function ($rootScope,$scope, $http, $ionicModal, NgTableParams) {
         var codes = 'sz002594,sh601390';
         var lt = (new Date()).getTime() - 24 * 60 * 60 * 1000;
@@ -567,6 +612,7 @@ angular.module('starter.controllers', ['ngTable'])
                         }]
                     }];
 
+
                     var series = [{
                                 name: 'Column',
                                 type: 'area',
@@ -599,7 +645,6 @@ angular.module('starter.controllers', ['ngTable'])
                                 data: arr[4]
                             }];
 
-
                     var options = {
                             chart: {
                                 renderTo: 'popular'
@@ -617,24 +662,20 @@ angular.module('starter.controllers', ['ngTable'])
                                 enabled: false
                             },
                             scrollbar: {
-                                enabled: false
+                                enabled: true
                             },
                             yAxis: yAxis,
                             series: series
                         };
 
-                    if(chart)
-                        chart.destroy();
-                    chart = new Highcharts.stockChart(options);
-
-                    // if(chart==null){
-                    //     chart = new Highcharts.stockChart(options);
-                    // }else{
-                    //     for(var i = 0; i < chart.series.length; i++){
-                    //         chart.series[i].setData(arr[i],true);
-                    //     }
-                    //     chart.redraw();
-                    // }
+                    if(chart==null){
+                        chart = new Highcharts.stockChart(options);
+                    }else{
+                        for(var i = 0; i < chart.series.length; i++){
+                            chart.series[i].setData(arr[i],false);
+                        }
+                        chart.redraw();
+                    }
                 })
                 .error(function(error){
                     console.log(error);
