@@ -224,7 +224,7 @@ angular.module('starter.controllers', ['ngTable'])
                     alert('delete successfully.');
                 });
         };
-    }).controller('chartCtrl', function ($rootScope,$scope,$interval) {
+    }).controller('ChartCtrl', function ($rootScope,$scope,$interval) {
         
         var chart = new Highcharts.stockChart({
             chart: {
@@ -267,7 +267,7 @@ angular.module('starter.controllers', ['ngTable'])
             chart.redraw();
         }
         
-        $interval(addPoint,10000);
+        //$interval(addPoint,10000);
 
         
 
@@ -452,7 +452,7 @@ angular.module('starter.controllers', ['ngTable'])
                 .success(function (data) {
                     console.log(data);
                     
-                    if(data.length == 0)
+                    if(data.length < n)
                         return;
 
                     var maxColumn = 0;
@@ -559,24 +559,28 @@ angular.module('starter.controllers', ['ngTable'])
                     }
 
                     if (typeof (arr[3][arr[3].length - 1]) == "object" && arr[3][arr[3].length - 1][0] == data.length - 1 && !isPlay) { //buy
+                        console.log("buy");
                         if($scope.player)
                             $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('buymp3');
                         $scope.player.play();
                     } else if (typeof (arr[4][arr[4].length - 1]) == "object" && arr[4][arr[4].length - 1][0] == data.length - 1 && !isPlay) { //sell
+                        console.log("sell");
                         if($scope.player)
                             $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('sellmp3');
                         $scope.player.play();
                     } else if (typeof (arr[5][arr[5].length - 1]) == "object" && arr[5][arr[5].length - 1][0] == data.length - 1 && !isPlay) { //pre buy
+                        console.log("pre buy");
                         if($scope.player)
                             $scope.player.pause();
                         isPlay = true;
                         $scope.player = document.getElementById('pbuymp3');
                         $scope.player.play();
                     } else if (typeof (arr[6][arr[6].length - 1]) == "object" && arr[6][arr[6].length - 1][0] == data.length - 1 && !isPlay) { //pre sell
+                        console.log("pre sell");
                         if($scope.player)
                             $scope.player.pause();
                         isPlay = true;
@@ -665,7 +669,7 @@ angular.module('starter.controllers', ['ngTable'])
                                 text: null
                             },
                             navigator: {
-                                enabled: false
+                                enabled: true
                             },
                             credits: {
                                 enabled: false
